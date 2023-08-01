@@ -34,6 +34,56 @@ python -m flask init
 python -m flask run --host=0.0.0.0
 ```
 
+**2.url輸入:**
+http://127.0.0.1:5000/graphql
+
+
+**3.簡單範例測試:**
+```shell
+# 根據ID搜尋user並關聯出使用的role
+query {
+  users(id:2){
+    username,
+    passwordHash,
+		role{
+      name
+    }
+  }
+}
+
+# 更新user
+mutation {
+  UpdateUser(userData:{id:1,roleId:1, username:"x",passwordHash:"zz"}) {
+    user{
+      id,
+      username
+    }
+  }
+}
+
+# 根據ID刪除user並秀出msg
+mutation {
+  DelUser(id:1) {
+    msg
+  }
+}
+
+# 根據ID搜尋role並關聯出使用此role的users
+query {
+  roles(id:2){
+    name,
+    permissions,
+		users{
+      edges{
+        node{
+          username
+        }
+      }
+    }
+  }
+}
+```
+
 
 ### And coding style tests
 **想分析測試專案程式碼，可另外使用pylint進行分析**
