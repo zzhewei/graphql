@@ -1,4 +1,4 @@
-from appsample import create_app
+from main import create_app
 
-blueprints = ['appsample.controller.auth:auth']
-app = create_app('development', blueprints)
+blueprints = ["main.controller.auth:auth"]
+app = create_app("development", blueprints)

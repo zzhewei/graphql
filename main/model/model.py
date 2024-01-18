@@ -1,14 +1,9 @@
-###########
-# reference:https://www.maxlist.xyz/2019/10/30/flask-sqlalchemy/
-#           https://blog.csdn.net/weixin_42677653/article/details/106154452
-#           https://dboyliao.medium.com/python-%E7%B9%BC%E6%89%BF-543-bc3d8ef51d6d
-#           https://medium.com/bryanyang0528/python-setter-%E5%92%8C-getter-6c08a9d37d46
-###########
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from datetime import datetime
+
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash, generate_password_hash
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -22,12 +17,12 @@ class Permission:
 
 
 class Role(db.Model):
-    __tablename__ = 'roles'
+    __tablename__ = "roles"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     default = db.Column(db.Boolean, default=False, index=True)
     permissions = db.Column(db.Integer)
-    users = db.relationship('User', backref='role', lazy='dynamic')
+    users = db.relationship("User", backref="role", lazy="dynamic")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -37,11 +32,16 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         roles = {
-            'User': [Permission.READ],
-            'Moderator': [Permission.READ, Permission.WRITE, Permission.MODIFY],
-            'Administrator': [Permission.READ, Permission.WRITE, Permission.MODIFY, Permission.ADMIN],
+            "User": [Permission.READ],
+            "Moderator": [Permission.READ, Permission.WRITE, Permission.MODIFY],
+            "Administrator": [
+                Permission.READ,
+                Permission.WRITE,
+                Permission.MODIFY,
+                Permission.ADMIN,
+            ],
         }
-        default_role = 'User'
+        default_role = "User"
         for r in roles:
             role = Role.query.filter_by(name=r).first()
             if role is None:
@@ -49,7 +49,7 @@ class Role(db.Model):
             role.reset_permissions()
             for perm in roles[r]:
                 role.add_permission(perm)
-            role.default = (role.name == default_role)
+            role.default = role.name == default_role
             db.session.add(role)
         db.session.commit()
 
@@ -68,27 +68,24 @@ class Role(db.Model):
         return self.permissions & perm == perm
 
     def __repr__(self):
-        return '<Role %r>' % self.name
+        return "<Role %r>" % self.name
 
 
-# MRO and C3 Linearization
 class User(UserMixin, db.Model):
-    __tablename__ = 'user'
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
     username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(200))
 
     def __init__(self, **kwargs):
-        # can write super(User, self).__init__(**kwargs) --> python2
         super().__init__(**kwargs)
         if self.role is None:
             self.role = Role.query.filter_by(default=True).first()
 
-    # property set method only read
     @property
     def password(self):
-        raise AttributeError('password is not a readable attribute')
+        raise AttributeError("password is not a readable attribute")
 
     @password.setter
     def password(self, password):
@@ -98,7 +95,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def to_json(self):
-        return {'id': self.id, 'username': self.username}
+        return {"id": self.id, "username": self.username}
 
     def can(self, perm):
         return self.role is not None and self.role.has_permission(perm)
@@ -109,7 +106,7 @@ class User(UserMixin, db.Model):
 
 # 模型( model )定義
 class Product(db.Model):
-    __tablename__ = 'product'
+    __tablename__ = "product"
     pid = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=True, nullable=False)
     price = db.Column(db.Integer, nullable=False)

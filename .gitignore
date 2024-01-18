@@ -1,3 +1,4 @@
-log
+/log/event.log
 .venv
 .idea
+__pycache__

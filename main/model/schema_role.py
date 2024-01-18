@@ -1,7 +1,9 @@
 import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from . import Role as RoleModel, db
+
+from . import Role as RoleModel
+from . import db
 
 
 class RoleAttribute:
@@ -13,5 +15,4 @@ class RoleAttribute:
 class Role(SQLAlchemyObjectType):
     class Meta:
         model = RoleModel
-        interfaces = (relay.Node, )
-
+        interfaces = (relay.Node,)

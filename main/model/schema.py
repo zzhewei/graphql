@@ -1,22 +1,27 @@
 import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyConnectionField
-from . import User as UserModel, Role as RoleModel
-from .schema_user import User, CreateUserMutation, UpdateUserMutation, DelUserMutation
+
+from . import Role as RoleModel
+from . import User as UserModel
 from .schema_role import Role
+from .schema_user import CreateUserMutation, DelUserMutation, UpdateUserMutation, User
 
 
 class Query(graphene.ObjectType):
     node = relay.Node.Field()
 
-    users = graphene.List(lambda: User, id=graphene.Int())
+    # field = type 也可是 Obj type
+    users = graphene.List(lambda: User, uid=graphene.Int())
     roles = graphene.List(lambda: Role, id=graphene.Int())
+    hello = graphene.String()
 
-    def resolve_users(self, info, id=None):
+    # resolver需要加上固定前缀resolve_，會去映射上述的字段
+    def resolve_users(self, info, uid=None):
         query = User.get_query(info)
 
-        if id:
-            query = query.filter(UserModel.id == id)
+        if uid:
+            query = query.filter(UserModel.id == uid)
         return query.all()
 
     def resolve_roles(self, info, id=None):
@@ -36,4 +41,8 @@ class Mutation(graphene.ObjectType):
     DelUser = DelUserMutation.Field()
 
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+class Subscription(graphene.ObjectType):
+    message_received = graphene.String()
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)

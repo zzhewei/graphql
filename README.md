@@ -1,4 +1,6 @@
 # GraphQL範例
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
 ## Getting Started
@@ -42,7 +44,7 @@ http://127.0.0.1:5000/graphql
 ```shell
 # 根據ID搜尋user並關聯出使用的role
 query {
-  users(id:2){
+  users(uid:2){
     username,
     passwordHash,
 		role{
@@ -53,7 +55,7 @@ query {
 
 # 更新user
 mutation {
-  UpdateUser(userData:{id:1,roleId:1, username:"x",passwordHash:"zz"}) {
+  UpdateUser(userData:{uid:1,roleId:1, username:"x",passwordHash:"zz"}) {
     user{
       id,
       username
@@ -63,7 +65,7 @@ mutation {
 
 # 根據ID刪除user並秀出msg
 mutation {
-  DelUser(id:1) {
+  DelUser(uid:1) {
     msg
   }
 }
@@ -81,6 +83,23 @@ query {
       }
     }
   }
+}
+
+# 用 fragment 實現複用
+query {
+  u1: users(uid:1){
+    ...userData
+  },
+  u2: users(uid:2) {
+    ...userData
+  }
+}
+
+fragment userData on User {
+    username,
+		role{
+      name
+    }
 }
 ```
 
@@ -105,15 +124,6 @@ python -m pylint main.py
 ```shell
 pipreqs ./ --encoding=utf8 --force 
 ```
-
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
